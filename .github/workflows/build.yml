@@ -22,6 +22,7 @@ on:
   push:
     branches:
       - main
+      - repeat
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
