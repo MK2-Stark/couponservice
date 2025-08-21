@@ -13,6 +13,7 @@
 
     <groupId>com.tus</groupId>
     <artifactId>couponservice</artifactId>
+    <sonar.organization>mk2-stark</sonar.organization>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
