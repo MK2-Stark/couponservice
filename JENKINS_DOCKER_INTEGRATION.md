@@ -52,7 +52,44 @@ echo "=== DOCKER IMAGE CREATED ==="
 docker images | grep coupon-service
 ```
 
-**Build Step 5: Docker Container Deployment**
+**Build Step 5: Docker Container Deployment (FIXED VERSION)**
+
+**For Windows (Use "Execute Windows batch command"):**
+
+`````batch
+echo === STOPPING EXISTING CONTAINERS ===
+docker-compose down 2>nul || echo No containers to stop
+
+echo === CLEANING UP PORT 3306 ===
+netstat -ano | findstr :3306 > temp_ports.txt 2>nul
+if exist temp_ports.txt (
+    for /f "tokens=5" %%a in (temp_ports.txt) do (
+        echo Killing process %%a on port 3306
+        taskkill /f /pid %%a 2>nul || echo Process %%a already stopped
+    )
+    del temp_ports.txt
+) else (
+    echo Port 3306 is free
+)
+
+echo === DEPLOYING NEW VERSION ===
+docker-compose up -d --build
+
+echo === WAITING FOR APPLICATION STARTUP ===
+ping 127.0.0.1 -n 46 > nul
+
+echo === VERIFYING DEPLOYMENT ===
+curl -f http://localhost:9091/actuator/health
+if %errorlevel% neq 0 exit /b 1
+
+curl -f http://localhost:9091/couponapi/coupons || echo No coupons yet (expected)
+
+echo === DEPLOYMENT COMPLETED SUCCESSFULLY ===
+docker ps | findstr coupon
+```
+echo === TESTING API ENDPOINTS ===
+=======
+**Build Step 5: Docker Container Deployment (FIXED VERSION)**
 
 **For Windows (Use "Execute Windows batch command"):**
 
@@ -60,11 +97,23 @@ docker images | grep coupon-service
 echo === STOPPING EXISTING CONTAINERS ===
 docker-compose down 2>nul || echo No containers to stop
 
+echo === CLEANING UP PORT 3306 ===
+netstat -ano | findstr :3306 > temp_ports.txt 2>nul
+if exist temp_ports.txt (
+    for /f "tokens=5" %%a in (temp_ports.txt) do (
+        echo Killing process %%a on port 3306
+        taskkill /f /pid %%a 2>nul || echo Process %%a already stopped
+    )
+    del temp_ports.txt
+) else (
+    echo Port 3306 is free
+)
+
 echo === DEPLOYING NEW VERSION ===
 docker-compose up -d --build
 
 echo === WAITING FOR APPLICATION STARTUP ===
-timeout /t 45 /nobreak
+ping 127.0.0.1 -n 46 > nul
 
 echo === VERIFYING DEPLOYMENT ===
 curl -f http://localhost:9091/actuator/health
@@ -76,6 +125,44 @@ curl -f http://localhost:9091/couponapi/coupons || echo No coupons yet (expected
 echo === DEPLOYMENT COMPLETED SUCCESSFULLY ===
 docker ps | findstr coupon
 ```
+
+=======
+**Build Step 5: Docker Container Deployment (FIXED VERSION)**
+
+**For Windows (Use "Execute Windows batch command"):**
+
+````batch
+echo === STOPPING EXISTING CONTAINERS ===
+docker-compose down 2>nul || echo No containers to stop
+
+echo === CLEANING UP PORT 3306 ===
+netstat -ano | findstr :3306 > temp_ports.txt 2>nul
+if exist temp_ports.txt (
+    for /f "tokens=5" %%a in (temp_ports.txt) do (
+        echo Killing process %%a on port 3306
+        taskkill /f /pid %%a 2>nul || echo Process %%a already stopped
+    )
+    del temp_ports.txt
+) else (
+    echo Port 3306 is free
+)
+
+echo === DEPLOYING NEW VERSION ===
+docker-compose up -d --build
+
+echo === WAITING FOR APPLICATION STARTUP ===
+ping 127.0.0.1 -n 46 > nul
+
+echo === VERIFYING DEPLOYMENT ===
+curl -f http://localhost:9091/actuator/health
+if %errorlevel% neq 0 exit /b 1
+
+curl -f http://localhost:9091/couponapi/coupons || echo No coupons yet (expected)
+
+echo === DEPLOYMENT COMPLETED SUCCESSFULLY ===
+docker ps | findstr coupon
+```
+echo === TESTING API ENDPOINTS ===
 
 **For Linux/Mac (Use "Execute shell"):**
 
@@ -97,7 +184,7 @@ curl -f http://localhost:9091/couponapi/coupons || echo "No coupons yet (expecte
 
 echo "=== DEPLOYMENT COMPLETED SUCCESSFULLY ==="
 docker ps | grep coupon
-```
+`````
 
 #### **Updated Post-build Actions:**
 
