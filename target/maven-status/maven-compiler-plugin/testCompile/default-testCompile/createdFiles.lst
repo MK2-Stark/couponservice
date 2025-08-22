@@ -1,0 +1,7 @@
+com\tus\coupon\util\TestDataBuilder$CouponBuilder.class
+com\tus\coupon\util\TestDataBuilder.class
+com\tus\coupon\repo\CouponRepoTest.class
+com\tus\coupon\integration\CouponRestControllerIntegrationTest.class
+com\tus\coupon\e2e\CouponServiceE2ETest.class
+com\tus\coupon\model\CouponTest.class
+com\tus\coupon\controller\CouponRestControllerTest.class
