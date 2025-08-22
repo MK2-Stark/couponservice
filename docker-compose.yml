@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: coupon-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: A00Imran
+      MYSQL_DATABASE: servicedb
+      MYSQL_USER: coupon_user
+      MYSQL_PASSWORD: coupon_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+    networks:
+      - coupon-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Coupon Service Application
+  coupon-service:
+    build: .
+    container_name: coupon-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/servicedb
+      SPRING_DATASOURCE_USERNAME: coupon_user
+      SPRING_DATASOURCE_PASSWORD: coupon_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "9091:9091"
+    networks:
+      - coupon-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  mysql_data:
+
+networks:
+  coupon-network:
+    driver: bridge
