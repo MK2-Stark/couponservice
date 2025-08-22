@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tus.coupon.model.Coupon;
 import com.tus.coupon.repo.CouponRepo;
 import com.tus.coupon.util.TestDataBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@Transactional
 @DisplayName("Coupon Service End-to-End Tests")
 class CouponServiceE2ETest {
 
@@ -47,6 +47,12 @@ class CouponServiceE2ETest {
         couponRepo.deleteAll();
         // Ensure database is actually clean
         assertThat(couponRepo.count()).isEqualTo(0);
+    }
+
+    @AfterEach
+    void tearDown() {
+        // Clean database after each test to ensure isolation
+        couponRepo.deleteAll();
     }
 
     @Test
@@ -243,7 +249,7 @@ class CouponServiceE2ETest {
         for (int i = 1; i <= 5; i++) {
             Coupon coupon = TestDataBuilder.aCoupon()
                     .withCode("CONCURRENT_" + i)
-                    .withDiscount(String.valueOf(i * 10.0))
+                    .withDiscount(String.valueOf(i * 10) + ".00")
                     .build();
 
             ResponseEntity<Coupon> response = restTemplate.postForEntity(
@@ -265,7 +271,7 @@ class CouponServiceE2ETest {
 
             assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(getResponse.getBody().getCode()).isEqualTo("CONCURRENT_" + i);
-            assertThat(getResponse.getBody().getDiscount()).isEqualTo(new BigDecimal(String.valueOf(i * 10.0)));
+            assertThat(getResponse.getBody().getDiscount()).isEqualTo(new BigDecimal(String.valueOf(i * 10) + ".00"));
         }
     }
 
